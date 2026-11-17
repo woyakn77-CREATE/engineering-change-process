@@ -1,6 +1,6 @@
 # Engineering Change Process: Before and After
 
-**Live:** https://woyakn77-create.github.io/engineering-change-process/ · [Back to portfolio](https://woyakn77-create.github.io/portfolio/)
+**Live:** https://woyakn77-create.github.io/engineering-change-process/ · [Back to portfolio](https://woyakn77-create.github.io/Portfolio/)
 
 When a product's design changes, the change has to pass through engineering, purchasing, manufacturing and quality before the new version can be built. This page maps that process at two manufacturing sites, measures where the time goes, and proposes a faster future state.
 
