@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engineering Change Process: Before and After</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#eef1f3;--panel:#fff;--fg:#1a2127;--muted:#56636d;--line:#c3ccd3;--accent:#1f3864;--acc2:#2f6fb0;--soft:#e2edf5;
+--wait:#b7791f;--wait-soft:#fbf1df;--kz:#c0392b;--kz-soft:#fbe7e5;--good:#2c6e45;--good-soft:#e2f2e8;
+--f-d:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;--f-b:"Source Sans 3","Segoe UI",Arial,sans-serif;--f-m:"IBM Plex Mono",Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#12171b;--panel:#1b2227;--fg:#e4e9ec;--muted:#9aa7b0;--line:#465560;--accent:#8fb4e3;--acc2:#6fb0dc;--soft:#1d3342;
+--wait:#e0aa52;--wait-soft:#3a2d16;--kz:#f0827a;--kz-soft:#3d1d1b;--good:#6fcf95;--good-soft:#17321f;color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 var(--f-b);padding:24px 12px 56px}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font:700 2rem/1.1 var(--f-d);margin:0;color:var(--accent)}
+h2{font:700 1.3rem var(--f-d);margin:0;letter-spacing:.03em;color:var(--accent)}
+h3{font:700 1.05rem var(--f-d);margin:0;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+p{margin:0;max-width:72ch}
+.muted{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.pick{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end}
+.grp{display:flex;flex-direction:column;gap:5px}
+.grp>span{font:600 .72rem var(--f-m);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap}
+.seg button{font:600 1rem var(--f-d);padding:8px 16px;border:1.5px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer;text-align:left}
+.seg button small{display:block;font:400 .78rem var(--f-b);color:var(--muted)}
+.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0;margin-left:-1.5px}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.seg button[aria-pressed=true] small{color:var(--panel);opacity:.85}
+button:focus-visible{outline:3px solid var(--acc2);outline-offset:2px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile b{font:700 1.6rem var(--f-d);font-variant-numeric:tabular-nums}
+.tile span{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere}
+.tile em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--good)}
+.example{border-left:5px solid var(--acc2);background:var(--soft);padding:10px 14px;border-radius:0 6px 6px 0;display:flex;flex-direction:column;gap:4px}
+.example b{font:700 1.1rem var(--f-d)}
+/* flow */
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.arrow{width:2px;height:18px;background:var(--line);position:relative}
+.arrow::after{content:"";position:absolute;bottom:-1px;left:-5px;border:6px solid transparent;border-top:7px solid var(--line);border-bottom:0}
+.node{width:100%;max-width:560px;background:var(--panel);border:1.5px solid var(--line);border-left:6px solid var(--who);border-radius:6px;padding:8px 12px;display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.num{font:700 1rem var(--f-m);color:var(--muted);text-align:center}
+.nm{font-weight:700;overflow-wrap:anywhere}
+.who{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.pt{font:500 .8rem var(--f-m);color:var(--muted);white-space:nowrap;text-align:right}
+.note{grid-column:2/4;font-size:.86rem;color:var(--muted);overflow-wrap:anywhere}
+.kzs{grid-column:2/4;display:flex;flex-wrap:wrap;gap:4px}
+.kzb{font:700 .72rem var(--f-m);color:#fff;background:var(--kz);padding:1px 7px;border-radius:999px}
+.par{width:100%;max-width:760px;border:2px dashed var(--good);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;background:var(--good-soft)}
+.par>.lbl{font:700 .85rem var(--f-d);letter-spacing:.06em;text-transform:uppercase;color:var(--good);text-align:center}
+.par .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:700px){.par .cols{grid-template-columns:minmax(0,1fr)}}
+.par .node{max-width:none;grid-template-columns:minmax(0,1fr) auto}
+.par .node .note,.par .node .kzs{grid-column:1/3}
+.dec{width:100%;max-width:560px;display:flex;align-items:center;gap:12px;padding:6px 0}
+.dia{flex:none;width:92px;height:92px;display:grid;place-items:center;position:relative}
+.dia::before{content:"";position:absolute;inset:14px;transform:rotate(45deg);background:var(--wait-soft);border:2px solid var(--wait);border-radius:4px}
+.dia span{position:relative;font:700 .85rem var(--f-d);text-align:center;line-height:1.1;color:var(--fg);padding:0 6px}
+.decnote{font-size:.88rem;overflow-wrap:anywhere}
+.decnote b{color:var(--kz)}
+.term{border-radius:999px;padding:8px 22px;font-weight:700;border:2px solid var(--accent);background:var(--soft);text-align:center}
+.term.end{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+/* vsm */
+.vsmwrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:14px}
+.vsm{display:flex;align-items:stretch;gap:0;min-width:max-content}
+.vcol{display:flex;flex-direction:column;align-items:center;gap:6px;width:118px}
+.vbox{width:118px;min-height:92px;border:2px solid var(--accent);border-radius:4px;background:var(--soft);padding:6px;display:flex;flex-direction:column;gap:2px;position:relative}
+.vbox.par{border-color:var(--good);background:var(--good-soft);border-style:solid}
+.vbox b{font:700 .84rem/1.15 var(--f-d)}
+.vbox small{font-size:.72rem;color:var(--muted);line-height:1.2}
+.vbox .k{position:absolute;top:-10px;right:-6px;display:flex;gap:2px}
+.vdata{width:118px;border:1px solid var(--line);border-radius:3px;font:500 .74rem var(--f-m);display:flex;justify-content:space-between;padding:3px 6px}
+.vq{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:62px;font:500 .74rem var(--f-m);color:var(--wait);text-align:center}
+.tri{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-bottom:22px solid var(--wait);position:relative}
+.tri::after{content:"I";position:absolute;left:-2px;top:7px;font:700 .65rem var(--f-m);color:#fff}
+.ladder{display:flex;min-width:max-content;margin-top:10px;font:500 .74rem var(--f-m)}
+.ladder .w{width:62px;border-top:2.5px solid var(--fg);border-left:2.5px solid var(--fg);border-right:2.5px solid var(--fg);height:44px;display:flex;align-items:flex-start;justify-content:center;padding-top:3px;color:var(--wait)}
+.ladder .p{width:118px;border-bottom:2.5px solid var(--fg);height:44px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;color:var(--acc2)}
+.ladder .w + .p, .ladder .p + .w{margin-left:-2.5px}
+.tot{width:160px;margin-left:12px;border:2px solid var(--fg);border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;gap:3px;font-size:.78rem;background:var(--bg)}
+.tot b{font:700 .95rem var(--f-m)}
+/* kaizen + methods */
+.kzlist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.kzlist{grid-template-columns:minmax(0,1fr)}}
+.kz{border:1px solid var(--line);border-left:5px solid var(--kz);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;background:var(--panel);min-width:0}
+.kz .t{font-weight:700;display:flex;gap:8px;align-items:baseline}
+.kz .t .kzb{flex:none}
+.kz p{font-size:.9rem}
+.kz .meta{font-size:.8rem;color:var(--muted)}
+.methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.methods{grid-template-columns:minmax(0,1fr)}}
+.m{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:var(--panel);display:flex;flex-direction:column;gap:3px;min-width:0}
+.m b{font:700 1rem var(--f-d)}
+.m span{font-size:.88rem;color:var(--muted)}
+footer{font-size:.85rem;color:var(--muted)}
+</style></head><body>
+<div class="wrap">
+<header style="display:flex;flex-direction:column;gap:8px">
+<h1>Engineering Change Process: Before and After</h1>
+<p>When a product's design changes, the change has to travel through engineering, purchasing, manufacturing and quality before the new version can be built. I mapped how that work actually flows at two manufacturing sites, measured where the time goes, and designed a faster future state.</p>
+<p class="muted">Portfolio version: company names, people, systems and part details are generic. Times are realistic working-day estimates for illustration.</p>
+</header>
+
+<section class="panel" aria-label="Choose a view">
+<div class="pick">
+<div class="grp"><span>Site</span><div class="seg" id="siteSel"><button type="button" data-v="A" aria-pressed="true">Site A<small>Design change</small></button><button type="button" data-v="B" aria-pressed="false">Site B<small>New supplier part</small></button></div></div>
+<div class="grp"><span>State</span><div class="seg" id="stateSel"><button type="button" data-v="cur" aria-pressed="true">Current state<small>How it runs today</small></button><button type="button" data-v="fut" aria-pressed="false">Future state<small>Proposed</small></button></div></div>
+</div>
+<div class="example" id="example"></div>
+</section>
+
+<div class="tiles" id="tiles" aria-live="polite"></div>
+
+<section class="panel" aria-labelledby="flowH">
+<h2 id="flowH">Process flow</h2>
+<div class="legend" id="legend"></div>
+<div class="flow" id="flow"></div>
+</section>
+
+<section class="panel" aria-labelledby="vsmH">
+<h2 id="vsmH">Value stream map</h2>
+<p class="muted" style="font-size:.92rem">Each box is a step, with its hands-on work time (PT). Triangles are the time work sits waiting before the next step. The ladder at the bottom adds it up: waiting on top, work on the bottom. Scroll sideways to see the whole stream.</p>
+<div class="vsmwrap"><div class="vsm" id="vsm"></div><div class="ladder" id="ladder"></div></div>
+</section>
+
+<section class="panel" id="kzSec" aria-labelledby="kzH">
+<h2 id="kzH">Improvements</h2>
+<p class="muted" id="kzIntro"></p>
+<div class="kzlist" id="kzList"></div>
+</section>
+
+<section class="panel" aria-labelledby="mH">
+<h2 id="mH">Tools and methods used</h2>
+<div class="methods">
+<div class="m"><b>Process mapping</b><span>Walked the process with each team and drew it as it actually runs, including the steps that are not written down.</span></div>
+<div class="m"><b>Value stream mapping</b><span>Measured hands-on time and waiting time per step to get lead time and the share of time that adds value.</span></div>
+<div class="m"><b>Waste identification</b><span>Tagged each delay by lean waste type: waiting, rework, overprocessing, motion and handoffs.</span></div>
+<div class="m"><b>Kaizen</b><span>Targeted fixes (red bursts) aimed at the biggest waits, not just the longest tasks.</span></div>
+<div class="m"><b>Standard work</b><span>Standard request form, results template and release checklist so every change runs the same way.</span></div>
+<div class="m"><b>AI assistance</b><span>AI summarizes review comments and drafts work instructions from the redlined drawing; people review and approve.</span></div>
+</div>
+</section>
+<footer>Mapped and designed by Nicholas Woyak. Built with Claude.</footer>
+</div>
+
+<script>
+const WHO={
+ "Requester":"#7a8793","Engineering":"#2f6fb0","Cross-functional team":"#8a3f73","Management":"#1f3864",
+ "Purchasing":"#b7791f","Manufacturing":"#15706b","Production":"#5a4a8c","Quality":"#2c6e45"};
+/* step: n name, who, pt hours of hands-on work, w days waiting before the next step, note, k kaizen ids, dec decision after step, par parallel sub-steps */
+const SITES={
+A:{example:"Site A: design change to an in-house metal bracket",
+   desc:"A field issue shows a mounting bracket bending in shipping. Engineering wants a thicker material and one extra bend. The bracket is cut, bent and assembled in-house.",
+ cur:{steps:[
+  {n:"Submit change request",who:"Requester",pt:.5,w:4,note:"Free-form email. Sits until the weekly triage meeting."},
+  {n:"Review request",who:"Engineering",pt:1,w:3,note:"Missing details sent back to the requester. Meeting scheduled around six calendars."},
+  {n:"Cross-functional alignment meeting",who:"Cross-functional team",pt:1.5,w:1,note:"Engineering, quality, manufacturing and purchasing."},
+  {n:"Edit to incorporate feedback",who:"Engineering",pt:4,w:2},
+  {n:"Align on edits",who:"Cross-functional team",pt:1,w:4,note:"Second meeting or an email chase for replies.",dec:{q:"Aligned?",no:"Back to step 4 (about 1 in 3 changes)."}},
+  {n:"Approve change",who:"Management",pt:.5,w:3,note:"Waits on approver availability."},
+  {n:"Update drawing and BOM",who:"Engineering",pt:6,w:2},
+  {n:"Purchasing loads new material",who:"Purchasing",pt:2,w:3,note:"Starts only after the BOM is done. Material lead time not included."},
+  {n:"Create work instructions",who:"Manufacturing",pt:6,w:4,note:"Written from scratch after the drawing is released."},
+  {n:"Validation build",who:"Production",pt:4,w:8,note:"Waits for material and an open line slot."},
+  {n:"Validation testing",who:"Quality",pt:8,w:3,note:"Shipping drop and vibration test. Test plan written now."},
+  {n:"Review results",who:"Cross-functional team",pt:1,w:4,dec:{q:"Pass?",no:"Back to step 7 (rework)."}},
+  {n:"Approve for production",who:"Management",pt:.5,w:2},
+  {n:"Release to production",who:"Production",pt:1,w:0,note:"Old machine program sometimes left on the floor."}
+ ]},
+ fut:{steps:[
+  {n:"Submit standard change request",who:"Requester",pt:.5,w:1,k:[1],note:"Required fields and an impact checklist. Routed daily."},
+  {n:"Review and align at weekly change board",who:"Cross-functional team",pt:1,w:2,k:[2],note:"One time-boxed meeting with a pre-read replaces the review and first meeting."},
+  {n:"Edit in shared document",who:"Engineering",pt:3,w:1,k:[3],note:"AI turns meeting comments into an edit list."},
+  {n:"Align on edits asynchronously",who:"Cross-functional team",pt:.5,w:1,k:[3],note:"Reviewers close their comments in the document. No second meeting.",dec:{q:"Aligned?",no:"Back to step 3. Rare, since issues surface at the board."}},
+  {n:"Digital approval",who:"Management",pt:.5,w:1,k:[4],note:"Two-day limit, then auto-escalation. Test plan and line slot set here."},
+  {n:"Update records in parallel",par:[
+    {n:"Update drawing and BOM",who:"Engineering",pt:6},
+    {n:"Purchasing loads new material",who:"Purchasing",pt:2,k:[5]},
+    {n:"Draft work instructions",who:"Manufacturing",pt:3,k:[6],note:"AI draft from the redlined drawing, then reviewed."}],w:2,k:[5]},
+  {n:"Validation build",who:"Production",pt:4,w:3,k:[7],note:"Line slot booked at approval."},
+  {n:"Validation testing",who:"Quality",pt:8,w:1,k:[7],note:"Test plan written at approval."},
+  {n:"Review results with standard template",who:"Cross-functional team",pt:.5,w:1,k:[8],dec:{q:"Pass?",no:"Back to step 6."}},
+  {n:"Joint approval (engineering and quality)",who:"Management",pt:.5,w:.5,k:[4]},
+  {n:"Release with checklist",who:"Production",pt:1,w:0,k:[9],note:"Drawing, BOM, program and instructions all carry the same revision. Old program removed."}
+ ]}},
+B:{example:"Site B: switch to a component from a new supplier",
+   desc:"The current supplier is discontinuing an electronic driver. A replacement from a new supplier needs approval, setup in two business systems and electrical and heat testing.",
+ cur:{steps:[
+  {n:"Submit change request",who:"Requester",pt:.5,w:3,note:"Request form, but impact fields are optional."},
+  {n:"Review request",who:"Engineering",pt:1.5,w:3,note:"Engineer gathers supplier data sheets."},
+  {n:"Cross-functional alignment meeting",who:"Cross-functional team",pt:1.5,w:2},
+  {n:"Edit to incorporate feedback",who:"Engineering",pt:3,w:2},
+  {n:"Align on edits",who:"Cross-functional team",pt:1,w:3,dec:{q:"Aligned?",no:"Back to step 4."}},
+  {n:"Approve change (four approvers in sequence)",who:"Management",pt:1,w:6,note:"Each approver waits on the one before."},
+  {n:"Update drawing and BOM",who:"Engineering",pt:4,w:2},
+  {n:"Purchasing sets up supplier and part",who:"Purchasing",pt:4,w:7,note:"Supplier setup and quote start only now. Part data typed into two systems."},
+  {n:"Create work instructions",who:"Manufacturing",pt:3,w:3},
+  {n:"Validation build",who:"Production",pt:4,w:10,note:"Waits for sample parts from the new supplier."},
+  {n:"Validation testing",who:"Quality",pt:16,w:5,note:"Electrical and heat testing. Lab booked after parts arrive."},
+  {n:"Review results",who:"Cross-functional team",pt:1,w:3,dec:{q:"Pass?",no:"Back to step 8 (new samples)."}},
+  {n:"Approve for production",who:"Management",pt:.5,w:3},
+  {n:"Release to production",who:"Production",pt:1,w:0,note:"Old stock disposition handled by email."}
+ ]},
+ fut:{steps:[
+  {n:"Submit standard change request",who:"Requester",pt:.5,w:1,k:[1],note:"Required impact checklist flags supplier change and testing needs up front."},
+  {n:"Review and align at weekly change board",who:"Cross-functional team",pt:1.5,w:2,k:[2],note:"Purchasing requests supplier samples the same day."},
+  {n:"Edit in shared document",who:"Engineering",pt:2.5,w:1,k:[3]},
+  {n:"Align on edits asynchronously",who:"Cross-functional team",pt:.5,w:1,k:[3],dec:{q:"Aligned?",no:"Back to step 3."}},
+  {n:"Digital approval (parallel approvers)",who:"Management",pt:1,w:1,k:[4],note:"All approvers notified at once with a two-day limit."},
+  {n:"Update records in parallel",par:[
+    {n:"Update drawing and BOM",who:"Engineering",pt:4},
+    {n:"Set up supplier and part once",who:"Purchasing",pt:3,k:[10],note:"Entered once and synced to the second system."},
+    {n:"Draft work instructions",who:"Manufacturing",pt:2,k:[6]}],w:2,k:[5]},
+  {n:"Validation build",who:"Production",pt:4,w:4,k:[7],note:"Samples ordered at the change board, so they arrive sooner."},
+  {n:"Validation testing",who:"Quality",pt:16,w:1,k:[7],note:"Lab booked at approval."},
+  {n:"Review results with standard template",who:"Cross-functional team",pt:.5,w:1,k:[8],dec:{q:"Pass?",no:"Back to step 6."}},
+  {n:"Joint approval (engineering and quality)",who:"Management",pt:.5,w:.5,k:[4]},
+  {n:"Release with checklist",who:"Production",pt:1,w:0,k:[9],note:"Includes old-stock disposition as a tracked task."}
+ ]}}
+};
+const KZ={
+ 1:["Standard request form","Required fields and an impact checklist (parts, programs, suppliers, testing). Routed daily instead of weekly.","Waiting, rework","Removes the back-and-forth for missing details."],
+ 2:["Weekly change board","One time-boxed cross-functional meeting with a pre-read, replacing a separate review and an ad-hoc meeting.","Waiting, handoffs","No more scheduling around six calendars."],
+ 3:["Shared document and async alignment","Edits and comments live in one document. AI summarizes feedback into an edit list; reviewers close comments instead of meeting again.","Waiting, overprocessing","Eliminates the second meeting and email chases."],
+ 4:["Digital approval with time limits","Approvers get a two-business-day limit with auto-escalation. Engineering and quality approve results together.","Waiting","Approvals stop depending on one person's calendar."],
+ 5:["Parallel processing","Drawing and BOM, purchasing and work instructions start together after approval instead of one after another.","Waiting, handoffs","Three sequential waits become one."],
+ 6:["AI-drafted work instructions","AI drafts the instructions from the redlined drawing; a manufacturing engineer reviews and approves.","Overprocessing","Cuts writing time roughly in half."],
+ 7:["Plan validation at approval","Test plan, line slot and lab time are booked when the change is approved, so the build and testing are ready when parts arrive.","Waiting","Shortest path through the longest wait in the stream."],
+ 8:["Standard results template","Pass/fail criteria from the test plan, filled in during testing and reviewed in one short sign-off.","Overprocessing","Faster review and a clear record."],
+ 9:["Release checklist","Drawing, BOM, machine program and instructions must show the same revision; old programs are removed from the floor.","Defects","Prevents building to an old revision."],
+ 10:["Single data entry","Part and supplier data entered once and synced to the second business system.","Overprocessing, defects","Removes double entry and typos between systems."]
+};
+const $=id=>document.getElementById(id);
+let site="A",state="cur";
+const flat=steps=>steps.flatMap(s=>s.par?s.par.map(p=>({...p,w:0})):[s]);
+function stats(st){
+  let wait=0,crit=0,labor=0,meetings=0;
+  st.steps.forEach(s=>{wait+=s.w||0;if(s.par){crit+=Math.max(...s.par.map(p=>p.pt));labor+=s.par.reduce((a,p)=>a+p.pt,0)}else{crit+=s.pt;labor+=s.pt}
+    if(s.who==="Cross-functional team"&&!/asynchronously/.test(s.n))meetings++});
+  const lt=wait+crit/8;return {lt,wait,crit,labor,va:(crit/8)/lt,steps:st.steps.reduce((a,s)=>a+(s.par?s.par.length:1),0),meetings};
+}
+const d1=v=>(Math.round(v*10)/10).toString();
+const hrs=v=>(v<1?(v*60)+" min":d1(v)+" h");
+function nodeHTML(s,num){
+  const k=(s.k||[]).map(i=>`<span class="kzb">K${i}</span>`).join("");
+  return `<div class="node" style="--who:${WHO[s.who]}">${num!=null?`<span class="num">${num}</span>`:""}<div><div class="nm">${s.n}</div><div class="who">${s.who}</div></div><span class="pt">${hrs(s.pt)}</span>${s.note?`<div class="note">${s.note}</div>`:""}${k?`<div class="kzs">${k}</div>`:""}</div>`;
+}
+function render(){
+  const S=SITES[site],st=S[state],cur=stats(S.cur),fut=stats(S.fut),me=state==="cur"?cur:fut;
+  $("example").innerHTML=`<b>${S.example}</b><span>${S.desc}</span>`;
+  const chg=(a,b)=>`<em>${Math.round(100*(b-a)/a)}% vs today</em>`;
+  $("tiles").innerHTML=[
+    [d1(me.lt)+" days","Lead time, request to production (working days)",state==="fut"?chg(cur.lt,fut.lt):""],
+    [d1(me.crit)+" h","Hands-on work on the critical path",state==="fut"?chg(cur.crit,fut.crit):""],
+    [(100*me.va).toFixed(1)+"%","Share of lead time that is actual work",""],
+    [me.meetings+"","Live meetings",state==="fut"?`<em>was ${cur.meetings}</em>`:""]
+  ].map(([b,s,e])=>`<div class="tile"><b>${b}</b><span>${s}</span>${e}</div>`).join("");
+  const used=[...new Set(flat(st.steps).map(s=>s.who))];
+  $("legend").innerHTML=used.map(w=>`<span><i style="background:${WHO[w]}"></i>${w}</span>`).join("")+(state==="fut"?`<span><span class="kzb">K1</span> improvement, see list</span>`:"");
+  // flow
+  let html=`<div class="term">Change needed</div>`,num=0;
+  st.steps.forEach(s=>{
+    html+=`<div class="arrow"></div>`;num++;
+    if(s.par){html+=`<div class="par"><div class="lbl">${num}. ${s.n} ${(s.k||[]).map(i=>`<span class="kzb">K${i}</span>`).join("")}</div><div class="cols">${s.par.map(p=>nodeHTML(p,null)).join("")}</div></div>`}
+    else html+=nodeHTML(s,num);
+    if(s.dec){html+=`<div class="arrow"></div><div class="dec"><div class="dia"><span>${s.dec.q}</span></div><div class="decnote">Yes: continue.<br><b>No:</b> ${s.dec.no}</div></div>`}
+  });
+  html+=`<div class="arrow"></div><div class="term end">In production</div>`;
+  $("flow").innerHTML=html;
+  // vsm
+  let v="",lad="";
+  st.steps.forEach((s,i)=>{
+    const pt=s.par?Math.max(...s.par.map(p=>p.pt)):s.pt;
+    const k=(s.k||[]).map(x=>`<span class="kzb">K${x}</span>`).join("");
+    const title=s.par?`<b>${s.n}</b><small>${s.par.map(p=>p.n).join(" | ")}</small>`:`<b>${s.n}</b><small>${s.who}</small>`;
+    v+=`<div class="vcol"><div class="vbox${s.par?" par":""}">${k?`<span class="k">${k}</span>`:""}${title}</div><div class="vdata"><span>PT</span><span>${hrs(pt)}</span></div></div>`;
+    lad+=`<div class="p">${hrs(pt)}</div>`;
+    if(i<st.steps.length-1){v+=`<div class="vq"><div class="tri"></div>${d1(s.w)} d</div>`;lad+=`<div class="w">${d1(s.w)} d</div>`}
+  });
+  $("vsm").innerHTML=v;
+  $("ladder").innerHTML=lad+`<div class="tot"><span>Waiting <b>${d1(me.wait)} d</b></span><span>Work (critical path) <b>${d1(me.crit)} h</b></span><span>Lead time <b>${d1(me.lt)} d</b></span><span>Value-added <b>${(100*me.va).toFixed(1)}%</b></span></div>`;
+  // kaizen
+  const ks=[...new Set(flat(st.steps).flatMap(s=>s.k||[]).concat(st.steps.flatMap(s=>s.k||[])))].sort((a,b)=>a-b);
+  if(state==="cur"){
+    $("kzIntro").textContent="Where the time goes today. The biggest delays are waiting, not work:";
+    const top=[...S.cur.steps].map((s,i)=>({s,i})).filter(x=>x.s.w).sort((a,b)=>b.s.w-a.s.w).slice(0,4);
+    $("kzList").innerHTML=top.map(({s,i})=>`<div class="kz"><div class="t">${d1(s.w)} days waiting after step ${i+1}: ${s.n}</div><p>${s.note||"Handoff to the next team."}</p></div>`).join("")+
+      `<div class="kz" style="border-left-color:var(--acc2)"><div class="t">The pattern</div><p>Every team works one after another, and each handoff adds days of waiting. Work is only ${(100*cur.va).toFixed(0)}% of the lead time. Switch to Future state to see the fixes.</p></div>`;
+  }else{
+    $("kzIntro").textContent=`Each red K tag in the flow and value stream map points to one of these. Lead time drops from ${d1(cur.lt)} to ${d1(fut.lt)} working days.`;
+    $("kzList").innerHTML=ks.map(i=>{const [t,w,waste,eff]=KZ[i];return `<div class="kz"><div class="t"><span class="kzb">K${i}</span>${t}</div><p>${w}</p><div class="meta">Waste removed: ${waste}. ${eff}</div></div>`}).join("");
+  }
+}
+function wire(id,set){document.querySelectorAll(`#${id} button`).forEach(b=>b.addEventListener("click",()=>{set(b.dataset.v);document.querySelectorAll(`#${id} button`).forEach(x=>x.setAttribute("aria-pressed",x===b));render()}))}
+wire("siteSel",v=>site=v);wire("stateSel",v=>state=v);
+render();
+</script>
+<a href="https://woyakn77-create.github.io/portfolio/" style="position:fixed;top:10px;right:10px;z-index:50;font:600 13px Arial,sans-serif;background:#1f3864;color:#fff;padding:6px 12px;border-radius:999px;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,.2)">Portfolio</a>
+<script data-goatcounter="https://nwoyak.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body></html>
